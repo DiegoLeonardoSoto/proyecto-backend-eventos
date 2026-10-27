@@ -15,8 +15,8 @@ Plataforma para la gestión de conferencias y charlas de tecnología. Permite cr
 1. Cloná el repositorio:
 
    ```bash
-   git clone <url-del-repositorio>
-   cd <nombre-del-repositorio>
+   git clone https://github.com/DiegoLeonardoSoto/proyecto-backend-eventos
+   cd proyecto-backend-eventos
    ```
 
 2. Instalá las dependencias:
