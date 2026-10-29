@@ -117,11 +117,16 @@ src/
 
 ### Request de ejemplo
 
-```bash
-curl -X POST http://localhost:3000/api/sessions/register \
-  -H "Content-Type: application/json" \
-  -d '{"first_name": "Ana", "last_name": "Pérez", "email": "Ana@Mail.com ", "password": "Secreta123"}'
+```json
+{
+  "first_name": "Ana",
+  "last_name": "Pérez",
+  "email": "Ana@Mail.com ",
+  "password": "Secreta123"
+}
 ```
+
+El email va en mayúsculas y con un espacio al final a propósito: el servidor lo normaliza a `ana@mail.com`.
 
 ### Respuestas
 
