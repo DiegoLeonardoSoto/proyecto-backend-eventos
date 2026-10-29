@@ -1,4 +1,5 @@
 import { userModel } from "../models/user.model.js"
+import { createHash } from "../utils/bcrypt.js"
 
 export const getSessions = async (req, res) => {
 
@@ -44,7 +45,10 @@ export const registerUser = async (req, res) => {
         })
     }
 
-    const userSaved = await userModel.create({ first_name, last_name, password, role: 'user' ,email:normalizedEmail  } )
+
+    const hashedPassword = await createHash(password)
+
+    const userSaved = await userModel.create({ first_name, last_name, password: hashedPassword, role: 'user' ,email:normalizedEmail  } )
 
     return res.status(201).json({
         status: 'success',
