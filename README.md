@@ -158,3 +158,13 @@ El email va en mayúsculas y con un espacio al final a propósito: el servidor l
 ```
 
 > La contraseña se guarda hasheada con `bcrypt` y **nunca** se devuelve en la respuesta.
+
+## Evidencia
+
+Contraseña hasheada en MongoDB (no en texto plano):
+
+![Usuario en MongoDB con contraseña hasheada](screenshots/user_mongodb.png)
+
+Respuesta del endpoint sin el campo `password`:
+
+![Respuesta del registro sin password](screenshots/response_register.png)
