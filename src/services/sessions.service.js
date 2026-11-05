@@ -1,4 +1,5 @@
-import { createHash } from "../utils/bcrypt.js"
+import { createHash, isValidPassword } from "../utils/bcrypt.js"
+import { generateToken } from "../utils/jwt.js"
 import { AppError } from "../utils/AppError.js"
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -47,5 +48,41 @@ export class SessionsService {
       email: user.email,
       role: user.role,
     }
+  }
+
+  async loginUser ({ email, password }) {
+    if (!email || !password) {
+      throw new AppError(400, "Faltan campos obligatorios")
+    }
+
+    if (!EMAIL_REGEX.test(email.trim())) {
+      throw new AppError(400, "Email inválido")
+    }
+
+    if (password.length < 8) {
+      throw new AppError(400, "Contraseña invalida")
+    }
+
+    const normalizedEmail = email.toLowerCase().trim()
+
+    const user = await this.#usersRepository.findUserByEmail(normalizedEmail)
+    if (!user) {
+      throw new AppError(401, "Credenciales inválidas")
+    }
+
+    const isPasswordValid = await isValidPassword(password, user.password)
+
+    if (!isPasswordValid) {
+      throw new AppError(401, "Credenciales inválidas")
+    }
+
+    const tokenUser = {
+          id: user._id,
+          email: user.email
+    }
+
+    const token = generateToken(tokenUser)
+
+    return {token}
   }
 }

@@ -21,10 +21,21 @@ export class SessionsController {
     }
   }
 
-  getSessions = async (req, res) => {
-    return res.status(200).json({
-      status: "success",
-      payload: [],
-    })
+    loginUser = async (req, res) => {
+        try {
+            const userLogged = await this.#sessionsService.loginUser(req.body)
+
+            return res.status(200).json({
+                status: "success",
+                payload: userLogged,
+            })
+
+        } catch (error) {
+            const statusCode = error.statusCode || 500
+            return res.status(statusCode).json({
+                status: "error",
+                message: error.message
+            })
+      }
   }
 }

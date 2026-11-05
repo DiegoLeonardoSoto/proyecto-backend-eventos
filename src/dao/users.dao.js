@@ -1,15 +1,15 @@
-import { userModel } from "../models/user.model.js"
+import { UserModel } from "../models/user.model.js"
 
 export class UsersMongoDAO {
   async create(user) {
-    return userModel.create(user)
+    return UserModel.create(user)
   }
 
   async findOne(filter) {
-    return userModel.findOne(filter)
+    return UserModel.findOne(filter)
   }
 
   async exists(filter) {
-    return userModel.exists(filter)
+    return UserModel.exists(filter)
   }
 }

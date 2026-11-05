@@ -3,7 +3,7 @@ import { sessionsController } from "../dependencies/user.dependency.js";
 
 const router = Router()
 
-router.get('/', sessionsController.getSessions)
 router.post('/register', sessionsController.registerUser)
+router.post('/login', sessionsController.loginUser)
 
 export default router
