@@ -6,6 +6,7 @@ const router = Router()
 
 router.post('/register', sessionsController.registerUser)
 router.post('/login', sessionsController.loginUser)
-router.get('/current', authMiddleware ,sessionsController.current)
+router.get('/current', authMiddleware, sessionsController.current)
+router.post('/logout', sessionsController.logoutUser)
 
 export default router
