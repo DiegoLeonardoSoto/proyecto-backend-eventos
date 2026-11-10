@@ -7,6 +7,8 @@ Plataforma para la gestión de conferencias y charlas de tecnología. Permite cr
 - **Node.js** + **Express 5**
 - **MongoDB** con **Mongoose**
 - **bcrypt** para el hash de contraseñas
+- **jsonwebtoken** para firmar y verificar JWT
+- **cookie-parser** para leer la cookie de sesión
 - **dotenv** para variables de entorno
 - Módulos **ESM** (`import` / `export`)
 - **pnpm** como gestor de paquetes
@@ -39,7 +41,8 @@ Plataforma para la gestión de conferencias y charlas de tecnología. Permite cr
 | `PORT`       | Puerto donde corre el servidor | `3000`                           |
 | `NODE_ENV`   | Entorno de ejecución           | `DEV`                            |
 | `MONGO_URL`  | URL de conexión a MongoDB      | `mongodb://localhost:27017/charla` |
-| `JWT_SECRET` | Secreto para firmar tokens JWT | `un-secreto`                     |
+| `JWT_SECRET`     | Secreto para firmar tokens JWT | `un-secreto`                     |
+| `JWT_EXPIRES_IN` | Tiempo de expiración del JWT   | `1h`                             |
 
 ## Cómo ejecutar
 
@@ -64,7 +67,7 @@ src/
 ├── app.js                        # Configura Express (no levanta el servidor)
 ├── server.js                     # Inicia el servidor
 ├── config/                       # Configuración de la app y la BD
-│   ├── database.js               # Conexión a MongoDB
+│   ├── db.js                     # Conexión a MongoDB
 │   └── env.config.js             # Variables de entorno
 ├── controllers/                  # Manejo de solicitudes HTTP
 │   ├── events.controller.js
@@ -75,6 +78,7 @@ src/
 ├── dependencies/                 # Composición de dependencias
 │   └── user.dependency.js
 ├── middlewares/                  # Middlewares personalizados
+│   └── auth.middleware.js        # Verificación de JWT (ruta protegida)
 ├── models/                       # Modelos de datos
 │   ├── event.model.js
 │   └── user.model.js
@@ -88,17 +92,20 @@ src/
 │   └── sessions.service.js
 └── utils/                        # Funciones auxiliares
     ├── AppError.js               # Error con código de status HTTP
-    └── bcrypt.js                 # Hash y comparación de contraseñas
+    ├── hash.js                   # Hash y comparación de contraseñas (bcrypt)
+    └── jwt.js                    # Firmar y verificar tokens JWT
 ```
 
 ## Rutas disponibles
 
 | Método | Ruta                     | Descripción                          |
 | ------ | ------------------------ | ------------------------------------ |
-| `GET`  | `/api/health`            | Verifica que el servidor esté activo |
-| `GET`  | `/api/events`            | Lista de eventos                     |
-| `GET`  | `/api/sessions`          | Lista de sesiones                    |
-| `POST` | `/api/sessions/register` | Registro de un nuevo usuario         |
+| `GET`  | `/api/health`            | Verifica que el servidor esté activo        |
+| `GET`  | `/api/events`            | Lista de eventos                            |
+| `POST` | `/api/sessions/register` | Registro de un nuevo usuario                |
+| `POST` | `/api/sessions/login`    | Inicio de sesión (setea cookie `currentUser`) |
+| `GET`  | `/api/sessions/current`  | Usuario autenticado (ruta protegida)        |
+| `POST` | `/api/sessions/logout`   | Cierre de sesión (borra la cookie)          |
 
 ## Registro de usuarios
 
@@ -159,7 +166,77 @@ El email va en mayúsculas y con un espacio al final a propósito: el servidor l
 
 > La contraseña se guarda hasheada con `bcrypt` y **nunca** se devuelve en la respuesta.
 
+## Inicio de sesión
+
+`POST /api/sessions/login`
+
+### Request de ejemplo
+
+```json
+{
+  "email": "ana@mail.com",
+  "password": "Secreta123"
+}
+```
+
+### Respuestas
+
+**`200 OK`** — credenciales correctas (además setea la cookie `currentUser` HttpOnly):
+
+```json
+{ "status": "success", "message": "Login correcto" }
+```
+
+**`401 Unauthorized`** — credenciales incorrectas (mensaje genérico: no distingue si falló el email o la contraseña):
+
+```json
+{ "status": "error", "message": "Credenciales inválidas" }
+```
+
+## Usuario actual (ruta protegida)
+
+`GET /api/sessions/current`
+
+Requiere la cookie `currentUser` con un JWT válido (seteada en el login).
+
+### Respuestas
+
+**`200 OK`** — con cookie válida:
+
+```json
+{
+  "status": "success",
+  "payload": {
+    "id": "665f2a...",
+    "email": "ana@mail.com",
+    "role": "user"
+  }
+}
+```
+
+**`401 Unauthorized`** — sin cookie o con token inválido/expirado:
+
+```json
+{ "status": "error", "message": "No autenticado" }
+```
+
+## Cierre de sesión
+
+`POST /api/sessions/logout`
+
+Elimina la cookie `currentUser`.
+
+### Respuesta
+
+**`200 OK`** — sesión cerrada (borra la cookie):
+
+```json
+{ "status": "success", "message": "Sesión cerrada" }
+```
+
 ## Evidencia
+
+### Registro
 
 Contraseña hasheada en MongoDB (no en texto plano):
 
@@ -168,3 +245,21 @@ Contraseña hasheada en MongoDB (no en texto plano):
 Respuesta del endpoint sin el campo `password`:
 
 ![Respuesta del registro sin password](screenshots/response_register.png)
+
+### Autenticación
+
+Login exitoso — respuesta `200` con la cookie `currentUser` HttpOnly:
+
+![Login exitoso con cookie](screenshots/login_success.jpeg)
+
+`/current` enviando la cookie en el request:
+
+![Request a /current con la cookie](screenshots/current_cookie.jpeg)
+
+`/current` con cookie — respuesta `200`:
+
+![Respuesta 200 de /current](screenshots/current_body.jpeg)
+
+`/current` sin cookie — respuesta `401`:
+
+![Respuesta 401 de /current sin cookie](screenshots/current_401.jpeg)
