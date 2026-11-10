@@ -23,8 +23,8 @@ if (!process.env.JWT_SECRET) {
   process.exit(1)
 }
 
-if (!process.env.EXPIRATION_TIME) {
-  console.log('Hace falta un EXPIRATION_TIME')
+if (!process.env.JWT_EXPIRES_IN) {
+  console.log('Hace falta un JWT_EXPIRES_IN')
   process.exit(1)
 }
 
@@ -33,5 +33,5 @@ export const env = {
     NODE_ENV: process.env.NODE_ENV,
     MONGO_URL: process.env.MONGO_URL,
     JWT_SECRET: process.env.JWT_SECRET,
-    EXPIRATION_TIME: process.env.EXPIRATION_TIME
+    JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN
 }

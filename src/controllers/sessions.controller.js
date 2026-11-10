@@ -35,7 +35,7 @@ export class SessionsController {
                 .status(200)
                 .json({
                 status: "success",
-                message: "Usuario autenticado correctamente",
+                message: "Login correcto",
             })
 
         } catch (error) {
@@ -48,14 +48,14 @@ export class SessionsController {
   }
 
   current = async (req, res) => {
-    res.status(200).json({status:'success', data:req.user})
+    res.status(200).json({status:'success', payload:req.user})
   }
 
   logoutUser = async (req, res) => {
       res.clearCookie('currentUser')
       res.status(200).json({
           status: 'success',
-          message: 'Cierre de sesion exitoso'
+          message: 'Sesión cerrada'
       })
   }
 }

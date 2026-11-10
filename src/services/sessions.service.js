@@ -1,4 +1,4 @@
-import { createHash, isValidPassword } from "../utils/bcrypt.js"
+import { createHash, isValidPassword } from "../utils/hash.js"
 import { generateToken } from "../utils/jwt.js"
 import { AppError } from "../utils/AppError.js"
 
@@ -78,11 +78,12 @@ export class SessionsService {
 
     const tokenUser = {
           id: user._id,
-          email: user.email
+          email: user.email,
+          role: 'user'
     }
 
     const token = generateToken(tokenUser)
 
-    return {token}
+    return token
   }
 }

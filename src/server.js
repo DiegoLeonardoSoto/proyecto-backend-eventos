@@ -1,5 +1,5 @@
 import app from './app.js'
-import { connectToMongoDB } from './config/database.js'
+import { connectToMongoDB } from './config/db.js'
 import {env} from './config/env.config.js'
 
 
